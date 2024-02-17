@@ -32,9 +32,12 @@ prop_overlap <- function() {
   T2 <- pmax(T0, T1)
   
   # Estimate propensity scores in each scenario
-  e0hat <- fitted(glm(T0 ~ H1 + H2, family = binomial))
-  e1hat <- fitted(glm(T1 ~ H1 + H2, family = binomial))
-  e2hat <- fitted(glm(T2 ~ H1 + H2, family = binomial))
+  mod0 <- glm(T0 ~ H1 + H2, family = binomial)
+  e0hat <- fitted(mod0)
+  mod1 <- glm(T1 ~ H1 + H2, family = binomial)
+  e1hat <- fitted(mod1)
+  mod2 <- glm(T2 ~ H1 + H2, family = binomial)
+  e2hat <- fitted(mod2)
   
   # Plot overlap of propensity scores in each case
 
@@ -58,6 +61,11 @@ prop_overlap <- function() {
   lines(d2[["control"]], lty = 2)
   lines(d2[["trt"]], lty = 1)
   legend("topleft", c("T2 = 0", "T2 = 1"), lty = c(2,1))
+  
+  dplyr::tibble(coefficient = c("Intercept", "H1", "H2"),
+                mod0 = coef(mod0), mod1 = coef(mod1), mod2 = coef(mod2)) %>%
+    tidyr::pivot_longer(cols = starts_with("mod"), names_to = "model") %>%
+    tidyr::pivot_wider(names_from = coefficient)
   
 }
 
