@@ -1,0 +1,73 @@
+---
+title: "Gaussian processes"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{python}
+import numpy as np
+```
+
+```{python}
+train_X = [[0], [0.5]]
+train_y = [   1,     2]
+```
+
+```{python}
+import sklearn.metrics
+dist_XX = sklearn.metrics.pairwise_distances(train_X)
+```
+
+```{python}
+def squared_exponential(distance):
+    """Using RBF covariance kernel, get rid of **2 to change to Laplaccian"""
+    return np.exp(distance**2 / -2)
+kern_XX = squared_exponential(dist_XX)
+kern_XX
+```
+
+
+```{python}
+test_X = [[1]]
+X = train_X + test_X
+print(X)
+squared_exponential(
+              sklearn.metrics.pairwise_distances(
+                X
+              ))
+```
+
+
+```{python}
+predictions = []
+xs = np.linspace(0.5, 5)
+for x in xs:
+  test_X = [[x]]
+  kern_xX = squared_exponential(
+              sklearn.metrics.pairwise_distances(test_X, train_X))
+  test_y = kern_xX.dot(np.linalg.inv(kern_XX)).dot(train_y)[0]
+  predictions.append(test_y)
+```
+
+```{python}
+import matplotlib.pyplot as plt
+xs = np.concatenate(([0,.5], xs))
+obs_plus_predicted = [1,2] + predictions
+fig, ax = plt.subplots()
+ax.plot(xs, obs_plus_predicted, marker = 'o')
+plt.show()
+```
+Nice and smooth with a peak at around $x=1$
+
+
+
+
+
